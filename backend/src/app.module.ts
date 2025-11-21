@@ -1,0 +1,21 @@
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { UserModule } from './modules/user/user.module';
+import { ChannelModule } from './modules/channel/channel.module';
+import { PostModule } from './modules/post/post.module';
+import { NotificationModule } from './modules/notification/notification.module';
+import { EventsGateway } from './modules/events/events.gateway';
+import { PrismaService } from './prisma.service';
+import { RedisService } from './redis.service';
+
+@Module({
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
+    UserModule,
+    ChannelModule,
+    PostModule,
+    NotificationModule
+  ],
+  providers: [EventsGateway, PrismaService, RedisService],
+})
+export class AppModule {}

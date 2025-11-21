@@ -1,0 +1,22 @@
+services:
+  - type: web
+    name: politiz-backend
+    env: docker
+    plan: starter
+    dockerCommand: "node dist/main.js"
+    buildCommand: "npm install && npm run build"
+    healthCheckPath: /docs
+    envVars:
+      - key: DATABASE_URL
+        value: ${DATABASE_URL}
+      - key: REDIS_URL
+        value: ${REDIS_URL}
+      - key: PORT
+        value: 3000
+    autoDeploy: true
+  - type: redis
+    name: politiz-redis
+    ipAllowList: []
+  - type: postgres
+    name: politiz-postgres
+    ipAllowList: []

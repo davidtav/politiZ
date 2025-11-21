@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String           @id @default(cuid())
+  name      String
+  email     String           @unique
+  avatar    String?          
+  createdAt DateTime         @default(now())
+  follows   ChannelFollowers[]
+  likes     PostLikes[]
+}
+
+model Channel {
+  id          String             @id @default(cuid())
+  name        String             @unique
+  description String
+  avatar      String?
+  category    String?
+  createdAt   DateTime           @default(now())
+  posts       Post[]
+  followers   ChannelFollowers[]
+}
+
+model Post {
+  id        String      @id @default(cuid())
+  channelId String
+  title     String?
+  content   String
+  image     String?
+  createdAt DateTime    @default(now())
+  channel   Channel     @relation(fields: [channelId], references: [id])
+  likes     PostLikes[]
+  @@index([channelId])
+}
+
+model ChannelFollowers {
+  id        String    @id @default(cuid())
+  userId    String
+  channelId String
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  channel   Channel   @relation(fields: [channelId], references: [id])
+  @@unique([userId, channelId])
+  @@index([channelId])
+}
+
+model PostLikes {
+  id        String    @id @default(cuid())
+  userId    String
+  postId    String
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id])
+  post      Post      @relation(fields: [postId], references: [id])
+  @@unique([userId, postId])
+  @@index([postId])
+}
