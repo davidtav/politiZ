@@ -1,0 +1,10 @@
+version: "3.9"
+
+services:
+  scraper:
+    build: ./scraper
+    env_file:
+      - ./scraper/.env  # usa a mesma DATABASE_URL do Nest/Prisma
+    environment:
+      SCRAPE_INTERVAL_MINUTES: 10
+    restart: always

@@ -9,11 +9,48 @@ from sqlalchemy.orm import Session
 from .models import Channel, News
 
 
+# ============================
+# HEADERS PARA EVITAR BLOQUEIO
+# ============================
+DEFAULT_HEADERS = {
+    "User-Agent": (
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+        "AppleWebKit/537.36 (KHTML, like Gecko) "
+        "Chrome/122.0.0.0 Safari/537.36"
+    ),
+    "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+    "Accept-Language": "pt-BR,pt;q=0.9,en;q=0.8",
+    "Connection": "keep-alive",
+}
+
+
 def extract_text(element) -> Optional[str]:
     """Retorna o texto limpo de um elemento HTML."""
     if not element:
         return None
     return element.get_text(strip=True)
+
+
+def fetch_html(url: str) -> Optional[str]:
+    """Faz o request com headers realistas e retorna o HTML."""
+    try:
+        resp = requests.get(
+            url,
+            headers=DEFAULT_HEADERS,
+            timeout=30,
+        )
+        resp.raise_for_status()
+        html = resp.text
+
+        if len(html.strip()) < 50:
+            print(f"[Scraper] HTML muito pequeno recebido ({len(html)} bytes).")
+            return None
+
+        return html
+
+    except Exception as e:
+        print(f"[Scraper] Erro ao requisitar {url}: {e}")
+        return None
 
 
 def scrape_channel(session: Session, channel: Channel):
@@ -24,16 +61,14 @@ def scrape_channel(session: Session, channel: Channel):
 
     print(f"[Scraper] Coletando notícias de: {channel.name} ({channel.source_url})")
 
-    try:
-        resp = requests.get(channel.source_url, timeout=20)
-        resp.raise_for_status()
-    except Exception as e:
-        print(f"[Scraper] Erro ao acessar {channel.source_url}: {e}")
+    html = fetch_html(channel.source_url)
+    if not html:
+        print(f"[Scraper] Falha ao obter HTML de {channel.source_url}")
         return
 
-    soup = BeautifulSoup(resp.text, "html.parser")
+    soup = BeautifulSoup(html, "html.parser")
 
-    # Selector do container da notícia
+    # Seleciona itens
     item_selector = channel.item_selector or "article"
     items = soup.select(item_selector)
 
@@ -67,7 +102,7 @@ def scrape_channel(session: Session, channel: Channel):
         if not url:
             continue
 
-        # Completa URL relativa
+        # Completar URL relativa
         if url.startswith("/"):
             from urllib.parse import urljoin
             url = urljoin(channel.source_url, url)
@@ -97,11 +132,9 @@ def scrape_channel(session: Session, channel: Channel):
         if channel.date_selector:
             date_el = item.select_one(channel.date_selector)
             date_text = extract_text(date_el)
+            # parser PT-BR pode ser implementado depois
 
-            # TODO: implementar parser de datas em PT-BR futuramente
-            # Por enquanto armazenamos None
-
-        # Evitar duplicados: mesma URL no mesmo canal
+        # Verificar duplicados
         exists = (
             session.query(News)
             .filter(News.channel_id == channel.id, News.url == url)
@@ -110,9 +143,9 @@ def scrape_channel(session: Session, channel: Channel):
         if exists:
             continue
 
-        # Criar registro da notícia
+        # Criar registro
         news = News(
-            id=str(uuid.uuid4()),  # Prisma usa cuid(), aqui UUID string funciona igual
+            id=str(uuid.uuid4()),
             channel_id=channel.id,
             title=title,
             content=content,
