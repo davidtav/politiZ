@@ -8,7 +8,9 @@
     "start": "next start"
   },
   "dependencies": {
+    "@headlessui/react": "^2.2.9",
     "axios": "^1.13.2",
+    "clsx": "^2.1.1",
     "firebase": "^12.6.0",
     "framer-motion": "10.16.4",
     "next": "^14.2.33",
@@ -20,7 +22,7 @@
   },
   "devDependencies": {
     "@types/node": "20.10.0",
-    "@types/react": "18.2.37",
+    "@types/react": "^18.2.37",
     "autoprefixer": "10.4.16",
     "dotenv": "^17.2.3",
     "postcss": "8.4.31",
