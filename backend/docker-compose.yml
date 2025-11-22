@@ -22,9 +22,9 @@ services:
     environment:
       DATABASE_URL: postgresql://postgres:postgres@postgres:5432/politiz
       REDIS_URL: redis://redis:6379
-      PORT: 3000
+      PORT: 3001
       SWAGGER_PATH: /docs
     ports:
-      - '3000:3000'
+      - '3001:3001'
 volumes:
   pgdata:
