@@ -25,20 +25,35 @@ model Channel {
   avatar      String?
   category    String?
   createdAt   DateTime           @default(now())
+
+  // Campos para configuração de scraping
+  sourceUrl       String?        // URL da página que será raspada
+  scrapeType      String?        // 'html' | 'rss' | 'api' (por enquanto vamos usar 'html')
+  itemSelector    String?        // CSS selector do “card” de notícia
+  titleSelector   String?        // selector para o título
+  linkSelector    String?        // selector para o link
+  contentSelector String?        // selector para o resumo/conteúdo
+  imageSelector   String?        // selector para a imagem
+  dateSelector    String?        // selector para a data, se quiser
+  isActive        Boolean        @default(true) // se o canal participa do scraping
+
   posts       Post[]
   news        News[]
   followers   ChannelFollowers[]
 }
 
+
 model News {
-  id        String   @id @default(cuid())
-  channelId String
-  title     String
-  content   String
-  image     String?
-  url       String?
-  createdAt DateTime @default(now())
-  channel   Channel  @relation(fields: [channelId], references: [id])
+  id          String   @id @default(cuid())
+  channelId   String
+  title       String
+  content     String
+  image       String?
+  url         String?
+  createdAt   DateTime @default(now())
+  publishedAt DateTime?  // data original da notícia, se o site tiver
+
+  channel     Channel  @relation(fields: [channelId], references: [id])
 
   @@index([channelId])
 }
