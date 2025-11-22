@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { Post } from '../types';
+import { FaQuestion, FaThumbsDown, FaThumbsUp } from 'react-icons/fa';
 
 // Fallback explicit para porta 3001 onde backend Nest está rodando
 const DEFAULT_API = 'http://localhost:3001';
@@ -68,21 +69,21 @@ const MOCK_FEED: Post[] = [
         {
           id: 'opt-1',
           text: 'Sim, concordo',
-          emoji: '👍',
+          icon: FaThumbsUp,
           votes: 1936,
           percentage: 68
         },
         {
           id: 'opt-2',
           text: 'Não concordo',
-          emoji: '👎',
+          icon: FaThumbsDown,
           votes: 626,
           percentage: 22
         },
         {
           id: 'opt-3',
           text: 'Preciso saber mais',
-          emoji: '🤔',
+          icon: FaQuestion,
           votes: 285,
           percentage: 10
         }

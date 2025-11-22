@@ -1,3 +1,5 @@
+import { IconType } from "react-icons";
+
 export interface Channel {
   id?: string;
   name: string;
@@ -12,7 +14,7 @@ export interface Like {
 export interface PollOption {
   id: string;
   text: string;
-  emoji: string;
+  icon: IconType;
   votes: number;
   percentage: number;
 }
@@ -41,4 +43,41 @@ export interface Post {
 export interface FeedUpdatePayload {
   channelId: string;
   post: Post;
+}
+
+/**
+ * Interface para os dados necessários para criar um post normal
+ */
+export interface CreatePostData {
+    channelId: string;
+    title?: string;
+    content: string;
+    image?: string;
+}
+
+/**
+ * Interface para os dados de uma opção de enquete ao criar
+ */
+export interface CreatePollOptionData {
+    text: string;
+    icon: IconType;
+}
+
+/**
+ * Interface para os dados de uma enquete ao criar
+ */
+export interface CreatePollData {
+    question: string;
+    options: CreatePollOptionData[];
+    endsAt: string; // Data de término da enquete em formato ISO
+}
+
+/**
+ * Interface para os dados necessários para criar um post com enquete
+ */
+export interface CreatePostWithPollData {
+    channelId: string;
+    title?: string;
+    content?: string;
+    poll: CreatePollData;
 }

@@ -123,7 +123,7 @@ export function PostCard({ post }: PostCardProps) {
                   {/* Content */}
                   <div className="relative flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <span className="text-xl">{option.emoji}</span>
+                      <option.icon/>
                       <span className="text-white font-medium">{option.text}</span>
                     </div>
                     <span
