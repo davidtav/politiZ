@@ -8,13 +8,13 @@ export class NewsService {
     constructor(private prisma: PrismaService) { }
 
     create(createNewsDto: CreateNewsDto) {
-        return (this.prisma as any).news.create({
+        return this.prisma.news.create({
             data: createNewsDto,
         });
     }
 
     findAll() {
-        return (this.prisma as any).news.findMany({
+        return this.prisma.news.findMany({
             include: {
                 channel: true,
             },
@@ -25,7 +25,7 @@ export class NewsService {
     }
 
     findByChannel(channelId: string) {
-        return (this.prisma as any).news.findMany({
+        return this.prisma.news.findMany({
             where: { channelId },
             include: {
                 channel: true,
@@ -37,7 +37,7 @@ export class NewsService {
     }
 
     findOne(id: string) {
-        return (this.prisma as any).news.findUnique({
+        return this.prisma.news.findUnique({
             where: { id },
             include: {
                 channel: true,
@@ -46,14 +46,14 @@ export class NewsService {
     }
 
     update(id: string, updateNewsDto: UpdateNewsDto) {
-        return (this.prisma as any).news.update({
+        return this.prisma.news.update({
             where: { id },
             data: updateNewsDto,
         });
     }
 
     remove(id: string) {
-        return (this.prisma as any).news.delete({
+        return this.prisma.news.delete({
             where: { id },
         });
     }
