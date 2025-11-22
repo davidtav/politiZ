@@ -7,7 +7,11 @@ export class UserService {
   constructor(private prisma: PrismaService) {}
 
   create(data: CreateUserDto) {
-    return this.prisma.user.create({ data });
+    return this.prisma.user.upsert({ 
+      where: { email: data.email },
+      update: {},
+      create: data,
+     });
   }
 
   findAll() {
