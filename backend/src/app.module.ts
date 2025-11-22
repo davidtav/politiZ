@@ -9,6 +9,7 @@ import { PrismaService } from './prisma.service';
 import { RedisService } from './redis.service';
 
 import { NewsModule } from './modules/news/news.module';
+import { AiModule } from './modules/ai/ai.module';
 
 @Module({
   imports: [
@@ -18,6 +19,7 @@ import { NewsModule } from './modules/news/news.module';
     PostModule,
     NotificationModule,
     NewsModule,
+    AiModule,
   ],
   providers: [EventsGateway, PrismaService, RedisService],
 })
