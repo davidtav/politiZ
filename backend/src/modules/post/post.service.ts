@@ -145,4 +145,34 @@ export class PostService {
       },
     });
   }
+
+  /**
+   * Cria um post a partir de uma notícia processada pela IA
+   * Todos os posts criados por este método são atribuídos ao canal "IA Cidadã"
+   */
+  async createFromNews(iaCidadaChannelId: string, content: string, newsId: string) {
+    const post = await this.prisma.post.create({
+      data: {
+        channelId: iaCidadaChannelId,
+        content,
+        newsId,
+        title: null,
+        image: null,
+      },
+      include: {
+        channel: true,
+        likes: true,
+        news: {
+          include: {
+            channel: true,
+          },
+        },
+      },
+    });
+
+    // Notificar via WebSocket
+    this.gateway.feedUpdate(iaCidadaChannelId, post);
+
+    return post;
+  }
 }

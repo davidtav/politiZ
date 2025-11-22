@@ -24,6 +24,7 @@ services:
       REDIS_URL: redis://redis:6379
       PORT: 3001
       SWAGGER_PATH: /docs
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
     ports:
       - '3001:3001'
 volumes:

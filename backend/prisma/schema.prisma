@@ -31,16 +31,20 @@ model Channel {
 }
 
 model News {
-  id        String   @id @default(cuid())
-  channelId String
-  title     String
-  content   String
-  image     String?
-  url       String?
-  createdAt DateTime @default(now())
-  channel   Channel  @relation(fields: [channelId], references: [id])
+  id          String    @id @default(cuid())
+  channelId   String
+  title       String
+  content     String
+  image       String?
+  url         String?
+  processed   Boolean   @default(false)
+  processedAt DateTime?
+  createdAt   DateTime  @default(now())
+  channel     Channel   @relation(fields: [channelId], references: [id])
+  posts       Post[]
 
   @@index([channelId])
+  @@index([processed])
 }
 
 model Post {
@@ -49,11 +53,15 @@ model Post {
   title     String?
   content   String
   image     String?
+  newsId    String?
   createdAt DateTime    @default(now())
   channel   Channel     @relation(fields: [channelId], references: [id])
+  news      News?       @relation(fields: [newsId], references: [id])
   likes     PostLikes[]
   poll      Poll?
+  
   @@index([channelId])
+  @@index([newsId])
 }
 
 model Poll {

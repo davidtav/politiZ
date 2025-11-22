@@ -18,7 +18,6 @@ async function main() {
     });
 
     console.log('✅ Canal criado:', ibitingaChannel);
-
     console.log('🎉 Seed concluído com sucesso!');
 }
 

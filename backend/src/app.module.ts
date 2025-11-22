@@ -7,9 +7,9 @@ import { NotificationModule } from './modules/notification/notification.module';
 import { EventsGateway } from './modules/events/events.gateway';
 import { PrismaService } from './prisma.service';
 import { RedisService } from './redis.service';
-
 import { NewsModule } from './modules/news/news.module';
 import { AiModule } from './modules/ai/ai.module';
+import { JobsModule } from './modules/jobs/jobs.module';
 
 @Module({
   imports: [
@@ -20,6 +20,7 @@ import { AiModule } from './modules/ai/ai.module';
     NotificationModule,
     NewsModule,
     AiModule,
+    JobsModule,
   ],
   providers: [EventsGateway, PrismaService, RedisService],
 })

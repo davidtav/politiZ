@@ -57,4 +57,44 @@ export class NewsService {
             where: { id },
         });
     }
+
+    // Métodos para suporte ao job de processamento
+    findUnprocessedByChannel(channelId: string) {
+        return this.prisma.news.findMany({
+            where: {
+                channelId,
+                processed: false,
+            },
+            include: {
+                channel: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
+
+    findAllUnprocessed() {
+        return this.prisma.news.findMany({
+            where: {
+                processed: false,
+            },
+            include: {
+                channel: true,
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+    }
+
+    async markAsProcessed(newsId: string, postId: string) {
+        return this.prisma.news.update({
+            where: { id: newsId },
+            data: {
+                processed: true,
+                processedAt: new Date(),
+            },
+        });
+    }
 }
