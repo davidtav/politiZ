@@ -26,21 +26,29 @@ model Channel {
   category    String?
   createdAt   DateTime           @default(now())
 
-  // Campos para configuração de scraping
-  sourceUrl       String?        // URL da página que será raspada
-  scrapeType      String?        // 'html' | 'rss' | 'api' (por enquanto vamos usar 'html')
-  itemSelector    String?        // CSS selector do “card” de notícia
-  titleSelector   String?        // selector para o título
-  linkSelector    String?        // selector para o link
-  contentSelector String?        // selector para o resumo/conteúdo
-  imageSelector   String?        // selector para a imagem
-  dateSelector    String?        // selector para a data, se quiser
-  isActive        Boolean        @default(true) // se o canal participa do scraping
+  // Campos para listagem (modo A)
+  sourceUrl       String?
+  scrapeType      String?        // "html", "rss", "api"
+  itemSelector    String?        // seletor do item da lista
+  titleSelector   String?        // seletor do título na lista
+  linkSelector    String?        // seletor do link do item na lista
+  contentSelector String?        // geralmente não usado no modo B
+  imageSelector   String?
+  dateSelector    String?
+
+  // Campos para página de detalhe (modo B)
+  detailTitleSelector     String?
+  detailContentSelector   String?
+  detailImageSelector     String?
+  detailDateSelector      String?
+
+  isActive        Boolean        @default(true)
 
   posts       Post[]
   news        News[]
   followers   ChannelFollowers[]
 }
+
 
 
 model News {
