@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import { FaHeart, FaRegHeart, FaComment, FaShareAlt, FaEye, FaLightbulb, FaRobot } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaComment, FaShareAlt, FaEye, FaLightbulb, FaRobot, FaBus, FaGraduationCap, FaExclamationTriangle } from 'react-icons/fa';
 import { HiDotsVertical } from 'react-icons/hi';
 import { MotionFade } from './MotionFade';
 import type { Post } from '../types';
@@ -63,7 +63,7 @@ export function PostCard({ post }: PostCardProps) {
       <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-700/30 rounded-xl p-4 mb-4">
         <div className="flex items-start gap-3">
           <div className="text-orange-500 text-2xl mt-1">
-            ⚠️
+            <FaExclamationTriangle />
           </div>
           <div>
             <h3 className="text-white font-bold text-lg mb-2">
@@ -86,7 +86,7 @@ export function PostCard({ post }: PostCardProps) {
                 : 'bg-blue-600/20 text-blue-300'
               }`}
           >
-            {index === 0 ? '🚌' : '🎓'} {tag}
+            {index === 0 ? <FaBus /> : <FaGraduationCap />} {tag}
           </span>
         ))}
       </div>
