@@ -15,6 +15,7 @@ model User {
   createdAt DateTime         @default(now())
   follows   ChannelFollowers[]
   likes     PostLikes[]
+  pollVotes PollVote[]
 }
 
 model Channel {
@@ -37,7 +38,43 @@ model Post {
   createdAt DateTime    @default(now())
   channel   Channel     @relation(fields: [channelId], references: [id])
   likes     PostLikes[]
+  poll      Poll?
   @@index([channelId])
+}
+
+model Poll {
+  id        String       @id @default(cuid())
+  postId    String       @unique
+  question  String
+  endsAt    DateTime
+  createdAt DateTime     @default(now())
+  post      Post         @relation(fields: [postId], references: [id], onDelete: Cascade)
+  options   PollOption[]
+  votes     PollVote[]
+}
+
+model PollOption {
+  id        String     @id @default(cuid())
+  pollId    String
+  text      String
+  icon      String     // Nome do ícone (ex: 'FaThumbsUp')
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  votes     PollVote[]
+  @@index([pollId])
+}
+
+model PollVote {
+  id        String     @id @default(cuid())
+  userId    String
+  pollId    String
+  optionId  String
+  createdAt DateTime   @default(now())
+  user      User       @relation(fields: [userId], references: [id])
+  poll      Poll       @relation(fields: [pollId], references: [id], onDelete: Cascade)
+  option    PollOption @relation(fields: [optionId], references: [id], onDelete: Cascade)
+  @@unique([userId, pollId]) // Um usuário só pode votar uma vez por enquete
+  @@index([pollId])
+  @@index([optionId])
 }
 
 model ChannelFollowers {
@@ -61,3 +98,4 @@ model PostLikes {
   @@unique([userId, postId])
   @@index([postId])
 }
+

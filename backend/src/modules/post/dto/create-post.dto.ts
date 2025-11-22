@@ -1,4 +1,6 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsOptional, IsString, ValidateNested, ValidateIf } from 'class-validator';
+import { Type } from 'class-transformer';
+import { CreatePollDto } from './create-poll.dto';
 
 export class CreatePostDto {
   @IsString()
@@ -9,11 +11,19 @@ export class CreatePostDto {
   @IsString()
   title?: string;
 
+  // Content é obrigatório apenas se não houver poll
+  @ValidateIf(o => !o.poll)
   @IsString()
   @IsNotEmpty()
-  content!: string;
+  content?: string;
 
   @IsOptional()
   @IsString()
   image?: string;
+
+  // Poll é opcional, mas se fornecido deve ser válido
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => CreatePollDto)
+  poll?: CreatePollDto;
 }

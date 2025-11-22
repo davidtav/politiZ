@@ -1,14 +1,64 @@
 import { Injectable } from '@nestjs/common';
 import { PrismaService } from '../../prisma.service';
-import { CreatePostDto } from './dto/create-post.dto';
+import { CreatePostDto, CreatePollDto, CreatePollOptionDto } from './dto';
 import { EventsGateway } from '../events/events.gateway';
 
 @Injectable()
 export class PostService {
-  constructor(private prisma: PrismaService, private gateway: EventsGateway) {}
+  constructor(private prisma: PrismaService, private gateway: EventsGateway) { }
 
   async create(data: CreatePostDto) {
-    const post = await this.prisma.post.create({ data });
+    // Se o post tem uma enquete, criar o post com a enquete e suas opções
+    if (data.poll) {
+      const post = await this.prisma.post.create({
+        data: {
+          channelId: data.channelId,
+          title: data.title,
+          content: data.content || '',
+          image: data.image,
+          poll: {
+            create: {
+              question: data.poll.question,
+              endsAt: new Date(data.poll.endsAt),
+              options: {
+                create: data.poll.options.map(option => ({
+                  text: option.text,
+                  icon: option.icon,
+                })),
+              },
+            },
+          },
+        },
+        include: {
+          channel: true,
+          likes: true,
+          poll: {
+            include: {
+              options: true,
+              votes: true,
+            },
+          },
+        },
+      });
+
+      this.gateway.feedUpdate(data.channelId, post);
+      return post;
+    }
+
+    // Post normal sem enquete
+    const post = await this.prisma.post.create({
+      data: {
+        channelId: data.channelId,
+        title: data.title,
+        content: data.content!,
+        image: data.image,
+      },
+      include: {
+        channel: true,
+        likes: true,
+      },
+    });
+
     this.gateway.feedUpdate(data.channelId, post);
     return post;
   }
@@ -21,9 +71,78 @@ export class PostService {
   }
 
   feed(channelId?: string) {
+    const include = {
+      channel: true,
+      likes: true,
+      poll: {
+        include: {
+          options: true,
+          votes: true,
+        },
+      },
+    };
+
     if (channelId) {
-      return this.prisma.post.findMany({ where: { channelId }, orderBy: { createdAt: 'desc' } });
+      return this.prisma.post.findMany({
+        where: { channelId },
+        orderBy: { createdAt: 'desc' },
+        include,
+      });
     }
-    return this.prisma.post.findMany({ orderBy: { createdAt: 'desc' } });
+
+    return this.prisma.post.findMany({
+      orderBy: { createdAt: 'desc' },
+      include,
+    });
+  }
+
+  /**
+   * Registra um voto em uma enquete
+   */
+  async voteOnPoll(userId: string, pollId: string, optionId: string) {
+    // Verificar se o usuário já votou nesta enquete
+    const existingVote = await this.prisma.pollVote.findUnique({
+      where: {
+        userId_pollId: {
+          userId,
+          pollId,
+        },
+      },
+    });
+
+    if (existingVote) {
+      // Se já votou, atualizar o voto
+      const vote = await this.prisma.pollVote.update({
+        where: { id: existingVote.id },
+        data: { optionId },
+      });
+
+      // Retornar a enquete atualizada
+      return this.prisma.poll.findUnique({
+        where: { id: pollId },
+        include: {
+          options: true,
+          votes: true,
+        },
+      });
+    }
+
+    // Criar novo voto
+    await this.prisma.pollVote.create({
+      data: {
+        userId,
+        pollId,
+        optionId,
+      },
+    });
+
+    // Retornar a enquete atualizada
+    return this.prisma.poll.findUnique({
+      where: { id: pollId },
+      include: {
+        options: true,
+        votes: true,
+      },
+    });
   }
 }
