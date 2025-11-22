@@ -8,14 +8,17 @@ import { EventsGateway } from './modules/events/events.gateway';
 import { PrismaService } from './prisma.service';
 import { RedisService } from './redis.service';
 
+import { NewsModule } from './modules/news/news.module';
+
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
     UserModule,
     ChannelModule,
     PostModule,
-    NotificationModule
+    NotificationModule,
+    NewsModule,
   ],
   providers: [EventsGateway, PrismaService, RedisService],
 })
-export class AppModule {}
+export class AppModule { }

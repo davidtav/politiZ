@@ -26,7 +26,21 @@ model Channel {
   category    String?
   createdAt   DateTime           @default(now())
   posts       Post[]
+  news        News[]
   followers   ChannelFollowers[]
+}
+
+model News {
+  id        String   @id @default(cuid())
+  channelId String
+  title     String
+  content   String
+  image     String?
+  url       String?
+  createdAt DateTime @default(now())
+  channel   Channel  @relation(fields: [channelId], references: [id])
+
+  @@index([channelId])
 }
 
 model Post {
