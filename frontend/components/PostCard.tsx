@@ -1,6 +1,6 @@
 "use client";
 import { useState } from 'react';
-import { FaHeart, FaRegHeart, FaComment, FaShareAlt, FaEye, FaLightbulb, FaRobot, FaBus, FaGraduationCap, FaExclamationTriangle } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaComment, FaShareAlt, FaEye, FaLightbulb, FaRobot, FaBus, FaGraduationCap, FaExclamationTriangle, FaChartBar, FaUsers, FaClock } from 'react-icons/fa';
 import { HiDotsVertical } from 'react-icons/hi';
 import { MotionFade } from './MotionFade';
 import type { Post } from '../types';
@@ -14,10 +14,17 @@ export function PostCard({ post }: PostCardProps) {
   const [likesCount, setLikesCount] = useState(post.likes?.length ?? 1200);
   const [commentsCount] = useState(234);
   const [sharesCount] = useState(89);
+  const [selectedPollOption, setSelectedPollOption] = useState<string | undefined>(post.poll?.userVote);
 
   const handleLike = () => {
     setLiked(!liked);
     setLikesCount(prev => liked ? prev - 1 : prev + 1);
+  };
+
+  const handlePollVote = (optionId: string) => {
+    if (!post.poll) return;
+    setSelectedPollOption(optionId);
+    // Lógica para enviar o voto ao backend
   };
 
   const formatCount = (count: number) => {
@@ -27,8 +34,16 @@ export function PostCard({ post }: PostCardProps) {
     return count.toString();
   };
 
+  const getDaysUntilEnd = (endsAt: string) => {
+    const now = new Date();
+    const end = new Date(endsAt);
+    const diffTime = end.getTime() - now.getTime();
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+  };
+
   // Extrair tags do conteúdo ou usar tags padrão
-  const tags = ['Transporte', 'Educação'];
+  const tags = post.poll ? [] : ['Transporte', 'Educação'];
 
   return (
     <MotionFade className="w-full bg-[#1a1f2e] backdrop-blur rounded-2xl p-5 mb-4 border border-gray-800 hover:border-purple-500/50 transition-all duration-300">
@@ -47,9 +62,11 @@ export function PostCard({ post }: PostCardProps) {
               <span className="px-2 py-0.5 bg-blue-500/20 text-blue-400 text-xs rounded-full font-medium">
                 IA
               </span>
-              <span className="text-gray-500 text-sm">• 2h</span>
+              <span className="text-gray-500 text-sm">• 5h</span>
             </div>
-            <span className="text-gray-400 text-sm">Legislação Municipal</span>
+            <span className="text-gray-400 text-sm">
+              {post.poll ? 'Votação em Andamento' : 'Legislação Municipal'}
+            </span>
           </div>
         </div>
 
@@ -59,43 +76,135 @@ export function PostCard({ post }: PostCardProps) {
         </button>
       </div>
 
-      {/* Content */}
-      <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-700/30 rounded-xl p-4 mb-4">
-        <div className="flex items-start gap-3">
-          <div className="text-orange-500 text-2xl mt-1">
-            <FaExclamationTriangle />
+      {/* Poll Content */}
+      {post.poll ? (
+        <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 rounded-xl p-4 mb-4">
+          {/* Poll Header */}
+          <div className="flex items-center gap-2 mb-3">
+            <FaChartBar className="text-yellow-500" />
+            <span className="text-yellow-500 font-bold text-sm">Enquete Ativa</span>
           </div>
-          <div>
-            <h3 className="text-white font-bold text-lg mb-2">
-              {post.title || 'Nova proposta de lei sobre transporte escolar'}
-            </h3>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              {post.content}
-            </p>
+
+          {/* Poll Question */}
+          <h3 className="text-white font-semibold text-base mb-4 leading-relaxed">
+            {post.poll.question}
+          </h3>
+
+          {/* Poll Options */}
+          <div className="space-y-3 mb-4">
+            {post.poll.options.map((option) => {
+              const isSelected = selectedPollOption === option.id;
+              const isWinning = option.percentage === Math.max(...post.poll!.options.map(o => o.percentage));
+
+              return (
+                <button
+                  key={option.id}
+                  onClick={() => handlePollVote(option.id)}
+                  className={`w-full text-left rounded-lg p-3 transition-all duration-300 relative overflow-hidden ${isSelected
+                      ? isWinning
+                        ? 'bg-green-900/40 border-2 border-green-600/50'
+                        : option.percentage < 20
+                          ? 'bg-gray-800/60 border-2 border-gray-600/50'
+                          : 'bg-red-900/40 border-2 border-red-600/50'
+                      : 'bg-gray-800/30 border border-gray-700/50 hover:border-gray-600'
+                    }`}
+                >
+                  {/* Progress Bar */}
+                  <div
+                    className={`absolute inset-0 transition-all duration-500 ${isWinning
+                        ? 'bg-green-600/20'
+                        : option.percentage < 20
+                          ? 'bg-gray-600/10'
+                          : 'bg-red-600/20'
+                      }`}
+                    style={{ width: `${option.percentage}%` }}
+                  />
+
+                  {/* Content */}
+                  <div className="relative flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                      <span className="text-xl">{option.emoji}</span>
+                      <span className="text-white font-medium">{option.text}</span>
+                    </div>
+                    <span
+                      className={`font-bold text-lg ${isWinning
+                          ? 'text-green-400'
+                          : option.percentage < 20
+                            ? 'text-gray-400'
+                            : 'text-red-400'
+                        }`}
+                    >
+                      {option.percentage}%
+                    </span>
+                  </div>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Poll Stats */}
+          <div className="flex items-center gap-4 text-gray-400 text-sm">
+            <div className="flex items-center gap-1">
+              <FaUsers className="text-xs" />
+              <span>{formatCount(post.poll.totalVotes)} votos</span>
+            </div>
+            <span>•</span>
+            <div className="flex items-center gap-1">
+              <FaClock className="text-xs" />
+              <span>Encerra em {getDaysUntilEnd(post.poll.endsAt)} dias</span>
+            </div>
           </div>
         </div>
-      </div>
+      ) : (
+        /* Regular Post Content */
+        <>
+          <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-700/30 rounded-xl p-4 mb-4">
+            <div className="flex items-start gap-3">
+              <div className="text-orange-500 text-2xl mt-1">
+                <FaExclamationTriangle />
+              </div>
+              <div>
+                <h3 className="text-white font-bold text-lg mb-2">
+                  {post.title || 'Nova proposta de lei sobre transporte escolar'}
+                </h3>
+                <p className="text-gray-300 text-sm leading-relaxed">
+                  {post.content}
+                </p>
+              </div>
+            </div>
+          </div>
 
-      {/* Tags */}
-      <div className="flex gap-2 mb-4">
-        {tags.map((tag, index) => (
-          <span
-            key={index}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${index === 0
-                ? 'bg-purple-600/20 text-purple-300'
-                : 'bg-blue-600/20 text-blue-300'
-              }`}
-          >
-            {index === 0 ? <FaBus /> : <FaGraduationCap />} {tag}
+          {/* Tags */}
+          <div className="flex gap-2 mb-4">
+            {tags.map((tag, index) => (
+              <span
+                key={index}
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${index === 0
+                    ? 'bg-purple-600/20 text-purple-300'
+                    : 'bg-blue-600/20 text-blue-300'
+                  }`}
+              >
+                {index === 0 ? <FaBus /> : <FaGraduationCap />} {tag}
+              </span>
+            ))}
+          </div>
+
+          {/* CTA Button */}
+          <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3 px-4 rounded-xl mb-4 flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-[1.02]">
+            <FaLightbulb className="text-lg" />
+            Como isso me afeta?
+          </button>
+        </>
+      )}
+
+      {/* Tag for Poll Posts */}
+      {post.poll && (
+        <div className="flex gap-2 mb-4">
+          <span className="px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 bg-red-600/20 text-red-300">
+            ❤️ Saúde
           </span>
-        ))}
-      </div>
-
-      {/* CTA Button */}
-      <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3 px-4 rounded-xl mb-4 flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-[1.02]">
-        <FaLightbulb className="text-lg" />
-        Como isso me afeta?
-      </button>
+        </div>
+      )}
 
       {/* Actions */}
       <div className="flex items-center justify-between text-gray-400 pt-3 border-t border-gray-800">
