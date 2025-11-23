@@ -44,6 +44,7 @@ model News {
   processed   Boolean   @default(false)
   processedAt DateTime?
   createdAt   DateTime  @default(now())
+  publishedAt DateTime?
   channel     Channel   @relation(fields: [channelId], references: [id])
   posts       Post[]
 

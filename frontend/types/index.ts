@@ -33,6 +33,7 @@ export interface Post {
   channelId: string;
   channel?: Channel;
   content: string;
+  category: string;
   title?: string;
   image?: string;
   likes?: Like[];
