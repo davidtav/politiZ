@@ -87,7 +87,7 @@ export function PostCard({ post }: PostCardProps) {
 
   return (
     <MotionFade className="w-full bg-[#1a1f2e] backdrop-blur rounded-2xl p-5 mb-4 border border-gray-800 hover:border-purple-500/50 transition-all duration-300">
-      
+
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
@@ -120,7 +120,7 @@ export function PostCard({ post }: PostCardProps) {
       {/* Poll Content */}
       {post.poll ? (
         <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 rounded-xl p-4 mb-4">
-          
+
           {/* Poll Header */}
           <div className="flex items-center gap-2 mb-3">
             <FaChartBar className="text-yellow-500" />
@@ -142,26 +142,24 @@ export function PostCard({ post }: PostCardProps) {
                 <button
                   key={option.id}
                   onClick={() => handlePollVote(option.id)}
-                  className={`w-full text-left rounded-lg p-3 transition-all duration-300 relative overflow-hidden ${
-                    isSelected
+                  className={`w-full text-left rounded-lg p-3 transition-all duration-300 relative overflow-hidden ${isSelected
                       ? isWinning
                         ? 'bg-green-900/40 border-2 border-green-600/50'
                         : option.percentage < 20
                           ? 'bg-gray-800/60 border-2 border-gray-600/50'
                           : 'bg-red-900/40 border-2 border-red-600/50'
                       : 'bg-gray-800/30 border border-gray-700/50 hover:border-gray-600'
-                  }`}
+                    }`}
                 >
 
                   {/* Progress */}
                   <div
-                    className={`absolute inset-0 transition-all duration-500 ${
-                      isWinning
+                    className={`absolute inset-0 transition-all duration-500 ${isWinning
                         ? 'bg-green-600/20'
                         : option.percentage < 20
                           ? 'bg-gray-600/10'
                           : 'bg-red-600/20'
-                    }`}
+                      }`}
                     style={{ width: `${option.percentage}%` }}
                   />
 
@@ -172,13 +170,12 @@ export function PostCard({ post }: PostCardProps) {
                       <span className="text-white font-medium">{option.text}</span>
                     </div>
                     <span
-                      className={`font-bold text-lg ${
-                        isWinning
+                      className={`font-bold text-lg ${isWinning
                           ? 'text-green-400'
                           : option.percentage < 20
                             ? 'text-gray-400'
                             : 'text-red-400'
-                      }`}
+                        }`}
                     >
                       {option.percentage}%
                     </span>
@@ -206,14 +203,14 @@ export function PostCard({ post }: PostCardProps) {
           {/* Regular Content */}
           <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-700/30 rounded-xl p-4 mb-4">
             <div className="flex items-start gap-3">
-              <div className="text-orange-500 text-2xl mt-1">
+              <div className="text-orange-500 text-2xl mt-1 flex-shrink-0">
                 <FaExclamationTriangle />
               </div>
-              <div>
-                <h3 className="text-white font-bold text-lg mb-2">
+              <div className="flex-1 min-w-0">
+                <h3 className="text-white font-bold text-lg mb-2 break-words">
                   {post.title}
                 </h3>
-                <p className="text-gray-300 text-sm leading-relaxed">
+                <p className="text-gray-300 text-sm leading-relaxed break-words">
                   {post.content}
                 </p>
               </div>
@@ -225,11 +222,10 @@ export function PostCard({ post }: PostCardProps) {
             {tags.map((tag, index) => (
               <span
                 key={index}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
-                  index === 0
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${index === 0
                     ? 'bg-purple-600/20 text-purple-300'
                     : 'bg-blue-600/20 text-blue-300'
-                }`}
+                  }`}
               >
                 {tag}
               </span>
@@ -270,9 +266,8 @@ export function PostCard({ post }: PostCardProps) {
       <div className="flex items-center justify-between text-gray-400 pt-3 border-t border-gray-800">
         <button
           onClick={handleLike}
-          className={`flex items-center gap-2 hover:text-red-400 transition-colors ${
-            liked ? 'text-red-500' : ''
-          }`}
+          className={`flex items-center gap-2 hover:text-red-400 transition-colors ${liked ? 'text-red-500' : ''
+            }`}
         >
           {liked ? <FaHeart className="text-lg" /> : <FaRegHeart className="text-lg" />}
           <span className="font-medium">{formatCount(likesCount)}</span>
