@@ -24,6 +24,9 @@ model Channel {
   description String
   avatar      String?
   category    String?
+  sourceUrl   String           @default("")
+  scrapeType  String?
+  isActive    Boolean            @default(true)
   createdAt   DateTime           @default(now())
   posts       Post[]
   news        News[]

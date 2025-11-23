@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Channel" ALTER COLUMN "sourceUrl" SET NOT NULL,
+ALTER COLUMN "sourceUrl" SET DEFAULT '',
+ALTER COLUMN "sourceUrl" SET DATA TYPE TEXT;

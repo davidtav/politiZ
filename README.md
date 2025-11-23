@@ -22,6 +22,7 @@ O projeto foi desenvolvido utilizando uma arquitetura moderna e escalável, divi
 - **Cache/Filas**: [Redis](https://redis.io/) (ioredis)
 - **Websockets**: [Socket.io](https://socket.io/) (Gateway)
 - **Documentação**: Swagger (OpenAPI)
+- **IA**: [OpenAI](https://openai.com/)
 
 ## 📂 Estrutura do Projeto
 

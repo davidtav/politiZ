@@ -23,8 +23,16 @@ export class NewsProcessorService {
 
         try {
             // Garantir que o canal IA Cidadã existe
-            const iaCidadaChannel = await this.channelService.findOrCreateIACidada();
-            this.logger.log(`✅ Canal IA Cidadã encontrado: ${iaCidadaChannel.id}`);
+            //const iaCidadaChannel = await this.channelService.findOrCreateIACidada();
+            //this.logger.log(`✅ Canal IA Cidadã encontrado: ${iaCidadaChannel.id}`);
+            
+            const totalChannels = await this.channelService.findAll();
+            this.logger.log(`✅ Total de canais: ${totalChannels.length}`);
+
+            if (totalChannels.length === 0) {
+                this.logger.log('ℹ️  Nenhum canal para processar');
+                return;
+            }
 
             // Buscar todas as notícias não processadas
             const unprocessedNews = await this.newsService.findAllUnprocessed();
@@ -40,35 +48,38 @@ export class NewsProcessorService {
             let errorCount = 0;
 
             // Processar cada notícia
-            for (const news of unprocessedNews) {
+            for (const channel of totalChannels) {
                 try {
-                    this.logger.log(`📝 Processando notícia: "${news.title}" do canal ${news.channel.name}`);
+                    this.logger.log(`📝 Processando notícias do channel: "${channel.description}"`);
 
-                    // Resumir notícia usando IA
-                    const summary = await this.aiService.summarizeNews({
-                        title: news.title,
-                        content: news.content,
-                        url: news.url || undefined,
-                    });
+                    const news_total = await this.newsService.findUnprocessedByChannel(channel.id);
+                    for (const news of news_total) {
+                        // Resumir notícia usando IA
+                        const summary = await this.aiService.summarizeNews({
+                            title: news.title,
+                            content: news.content,
+                            url: news.url || undefined,
+                        });
 
-                    this.logger.log(`✨ Resumo gerado: "${summary.substring(0, 100)}..."`);
+                        this.logger.log(`✨ Resumo gerado: "${summary.substring(0, 100)}..."`);
 
-                    // Criar post no canal IA Cidadã
-                    const post = await this.postService.createFromNews(
-                        iaCidadaChannel.id,
-                        summary,
-                        news.id,
-                    );
+                        // Criar post no canal
+                        const post = await this.postService.createFromNews(
+                            channel.id,
+                            summary,
+                            news.id,
+                        );
 
-                    // Marcar notícia como processada
-                    await this.newsService.markAsProcessed(news.id, post.id);
+                        // Marcar notícia como processada
+                        await this.newsService.markAsProcessed(news.id, post.id);
 
-                    processedCount++;
-                    this.logger.log(`✅ Post criado com sucesso: ${post.id}`);
+                        processedCount++;
+                        this.logger.log(`✅ Post criado com sucesso: ${post.id}`);
+                    }
 
                 } catch (error) {
                     errorCount++;
-                    this.logger.error(`❌ Erro ao processar notícia ${news.id}:`, error);
+                    this.logger.error(`❌ Erro ao processar notícias do channel: ${channel.description}:`, error);
                     // Continuar processando outras notícias mesmo se uma falhar
                 }
             }
