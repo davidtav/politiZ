@@ -136,5 +136,16 @@ O projeto utiliza Docker Compose para gerenciar os seguintes serviços:
 - **Imagem**: `redis:7-alpine`
 - **Porta**: `6379`
 - **Uso**: Cache e gerenciamento de filas para jobs assíncronos
+---
+## 👨‍💻 Equipe
 
+* **David Mclaurel Brito Tavares**  - Desenvolvedor
+* **Ligia Neide de Souza Freitas** - UI/UX Design
+* **Luciana Colturato Festi** - Gerente de projeto
+* **Michel Angelucci** - Desenvolvedor
+* **Pedro pongiluppi thomaz** - CGO
 
+---
+## 📝 Licença
+
+Este projeto está sob a licença [MIT](./LICENSE).
