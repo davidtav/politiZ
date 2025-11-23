@@ -135,4 +135,95 @@ IMPORTANTE: Use exatamente os marcadores ### acima para separar as seções. Nã
             futureProjection: futureMatch ? futureMatch[1].trim() : 'Conteúdo não disponível.',
         };
     }
+
+    async analyzePoliticalBias(newsContent: {
+        title: string;
+        content: string;
+        category: string;
+    }): Promise<{
+        analysis: string;
+        summary: string;
+    }> {
+        // Prompt template armazenado no backend (seguro)
+        const prompt = `Você é a IA Cidadã, uma assistente que analisa conteúdo político de forma imparcial e educativa.
+
+Analise o seguinte conteúdo e identifique possíveis vieses políticos:
+
+Título: ${newsContent.title}
+Categoria: ${newsContent.category}
+Conteúdo: ${newsContent.content}
+
+INSTRUÇÕES PARA ANÁLISE:
+
+1. IDENTIFICAÇÃO DO AUTOR
+   - Identifique sempre que possível o autor do projeto/notícia
+   - Mencione sua função pública (ex: vereador, deputado, prefeito)
+   - Identifique seu partido político
+
+2. HISTÓRICO DO AUTOR
+   - Verifique quando possível se o autor já falou publicamente sobre esse tema no passado
+   - Mencione discursos, entrevistas ou postagens em redes sociais relacionadas
+   - Identifique se o autor já votou ou apoiou projetos semelhantes
+
+3. INTERESSES OCULTOS
+   - Explique possíveis motivações políticas por trás do texto
+   - Identifique grupos ou setores que podem se beneficiar
+   - Aponte possíveis conflitos de interesse
+
+4. IMPACTO EM IBITINGA
+   - Mostre quem GANHA com a proposta (setores, grupos, empresas)
+   - Mostre quem PERDE com a proposta (setores, grupos, população)
+   - Foque na realidade local de Ibitinga (SP)
+
+5. LINGUAGEM ACESSÍVEL
+   - Use linguagem simples e direta
+   - Evite jargões políticos ou jurídicos
+   - Adapte para compreensão de jovens de 16-20 anos
+
+FORMATO DE RESPOSTA:
+
+### ANÁLISE DETALHADA
+[Apresente aqui a análise completa seguindo os 4 pontos acima. Use parágrafos bem estruturados e subtítulos quando necessário.]
+
+### RESUMO DO VIÉS
+[Apresente um resumo objetivo de 2-3 parágrafos explicando o viés principal encontrado e as principais conclusões da análise.]
+
+IMPORTANTE: Use exatamente os marcadores ### acima para separar as seções. Não adicione texto antes ou depois das seções.`;
+
+        try {
+            const response = await this.ai.models.generateContent({
+                model: "gemini-2.5-flash",
+                contents: prompt,
+            });
+
+            const text = response.text || '';
+
+            // Parse da resposta para extrair as 2 seções
+            const sections = this.parseBiasAnalysis(text);
+
+            return sections;
+
+        } catch (error) {
+            console.error('Erro ao analisar viés político:', error);
+            // Retorna análise padrão em caso de erro
+            return {
+                analysis: 'Não foi possível gerar a análise no momento. Tente novamente mais tarde.',
+                summary: 'Não foi possível gerar o resumo no momento. Tente novamente mais tarde.',
+            };
+        }
+    }
+
+    private parseBiasAnalysis(text: string): {
+        analysis: string;
+        summary: string;
+    } {
+        // Extrair as seções usando os marcadores ###
+        const analysisMatch = text.match(/### ANÁLISE DETALHADA\s*([\s\S]*?)(?=###|$)/);
+        const summaryMatch = text.match(/### RESUMO DO VIÉS\s*([\s\S]*?)(?=###|$)/);
+
+        return {
+            analysis: analysisMatch ? analysisMatch[1].trim() : 'Conteúdo não disponível.',
+            summary: summaryMatch ? summaryMatch[1].trim() : 'Conteúdo não disponível.',
+        };
+    }
 }

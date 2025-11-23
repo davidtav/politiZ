@@ -4,7 +4,8 @@ import { FaHeart, FaRegHeart, FaComment, FaShareAlt, FaEye, FaLightbulb, FaRobot
 import { HiDotsVertical } from 'react-icons/hi';
 import { MotionFade } from './MotionFade';
 import { ImpactExplanationModal } from './ImpactExplanationModal';
-import { explainNewsImpact, type ImpactExplanation } from '../lib/api';
+import { BiasAnalysisModal } from './BiasAnalysisModal';
+import { explainNewsImpact, analyzePoliticalBias, type ImpactExplanation, type BiasAnalysis } from '../lib/api';
 import type { Post } from '../types';
 
 export interface PostCardProps {
@@ -20,6 +21,9 @@ export function PostCard({ post }: PostCardProps) {
   const [impactExplanation, setImpactExplanation] = useState<ImpactExplanation | null>(null);
   const [isLoadingExplanation, setIsLoadingExplanation] = useState(false);
   const [showExplanationModal, setShowExplanationModal] = useState(false);
+  const [biasAnalysis, setBiasAnalysis] = useState<BiasAnalysis | null>(null);
+  const [isLoadingBias, setIsLoadingBias] = useState(false);
+  const [showBiasModal, setShowBiasModal] = useState(false);
 
   const handleLike = () => {
     setLiked(!liked);
@@ -43,6 +47,20 @@ export function PostCard({ post }: PostCardProps) {
       alert('Erro ao buscar explicação. Tente novamente.');
     } finally {
       setIsLoadingExplanation(false);
+    }
+  };
+
+  const handleAnalyzeBias = async () => {
+    setIsLoadingBias(true);
+    try {
+      const analysis = await analyzePoliticalBias(post.id);
+      setBiasAnalysis(analysis);
+      setShowBiasModal(true);
+    } catch (error) {
+      console.error('Erro ao analisar viés:', error);
+      alert('Erro ao analisar viés. Tente novamente.');
+    } finally {
+      setIsLoadingBias(false);
     }
   };
 
@@ -259,9 +277,22 @@ export function PostCard({ post }: PostCardProps) {
           <span className="font-medium">{sharesCount}</span>
         </button>
 
-        <button className="flex items-center gap-2 hover:text-purple-400 transition-colors">
-          <FaEye className="text-lg" />
-          <span className="font-medium">Ver viés</span>
+        <button
+          onClick={handleAnalyzeBias}
+          disabled={isLoadingBias}
+          className="flex items-center gap-2 hover:text-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoadingBias ? (
+            <>
+              <FaSpinner className="text-lg animate-spin" />
+              <span className="font-medium">Analisando...</span>
+            </>
+          ) : (
+            <>
+              <FaEye className="text-lg" />
+              <span className="font-medium">Ver viés</span>
+            </>
+          )}
         </button>
       </div>
 
@@ -270,6 +301,14 @@ export function PostCard({ post }: PostCardProps) {
         <ImpactExplanationModal
           explanation={impactExplanation}
           onClose={() => setShowExplanationModal(false)}
+        />
+      )}
+
+      {/* Modal de Análise de Viés */}
+      {showBiasModal && biasAnalysis && (
+        <BiasAnalysisModal
+          analysis={biasAnalysis}
+          onClose={() => setShowBiasModal(false)}
         />
       )}
     </MotionFade>

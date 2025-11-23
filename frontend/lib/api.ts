@@ -26,6 +26,16 @@ export async function explainNewsImpact(postId: string): Promise<ImpactExplanati
   return response.data;
 }
 
+export interface BiasAnalysis {
+  analysis: string;
+  summary: string;
+}
+
+export async function analyzePoliticalBias(postId: string): Promise<BiasAnalysis> {
+  const response = await api.post('/ai/analyze-bias', { postId });
+  return response.data;
+}
+
 // export async function fetchMockFeed() {
 //   return MOCK_FEED;
 // }

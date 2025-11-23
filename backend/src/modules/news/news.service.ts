@@ -134,11 +134,14 @@ export class NewsService {
             },
         ];
 
-        // Create all news entries
+        // Create all news entries using upsert to avoid duplicates
         const createdNews = await Promise.all(
             seedNews.map((news) =>
-                this.prisma.news.create({
-                    data: {
+                this.prisma.news.upsert({
+                    where: {
+                        url: news.url, // Usa a URL como identificador único
+                    },
+                    create: {
                         channelId,
                         title: news.title,
                         content: news.content,
@@ -147,6 +150,14 @@ export class NewsService {
                         url: news.url,
                         publishedAt: news.publishedAt,
                         processed: false,
+                    },
+                    update: {
+                        // Atualiza apenas se houver mudanças no conteúdo
+                        title: news.title,
+                        content: news.content,
+                        category: news.category,
+                        image: news.image,
+                        publishedAt: news.publishedAt,
                     },
                 })
             )
