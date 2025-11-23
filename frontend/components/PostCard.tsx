@@ -33,7 +33,6 @@ export function PostCard({ post }: PostCardProps) {
   const handlePollVote = (optionId: string) => {
     if (!post.poll) return;
     setSelectedPollOption(optionId);
-    // enviar voto ao backend
   };
 
   const handleExplainImpact = async () => {
@@ -76,11 +75,6 @@ export function PostCard({ post }: PostCardProps) {
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  // ================================
-  //   EXTRAÇÃO DE TAGS DO BACKEND
-  // ================================
-  // Se post.category existir: "saúde;transporte;educação"
-  // Caso contrário: []
   const tags = !post.poll && post.category
     ? post.category.split(';').map(t => t.trim()).filter(Boolean)
     : [];
@@ -91,12 +85,10 @@ export function PostCard({ post }: PostCardProps) {
       {/* Header */}
       <div className="flex items-start justify-between mb-4">
         <div className="flex items-center gap-3">
-          {/* Avatar */}
           <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
             <FaRobot className="text-white text-xl" />
           </div>
 
-          {/* Info */}
           <div>
             <div className="flex items-center gap-2">
               <span className="text-white font-semibold">IA Cidadã</span>
@@ -111,28 +103,24 @@ export function PostCard({ post }: PostCardProps) {
           </div>
         </div>
 
-        {/* Menu */}
         <button className="text-gray-500 hover:text-gray-300 transition">
           <HiDotsVertical className="text-xl" />
         </button>
       </div>
 
-      {/* Poll Content */}
+      {/* Poll */}
       {post.poll ? (
         <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 border border-gray-700/50 rounded-xl p-4 mb-4">
 
-          {/* Poll Header */}
           <div className="flex items-center gap-2 mb-3">
             <FaChartBar className="text-yellow-500" />
             <span className="text-yellow-500 font-bold text-sm">Enquete Ativa</span>
           </div>
 
-          {/* Question */}
           <h3 className="text-white font-semibold text-base mb-4 leading-relaxed">
             {post.poll.question}
           </h3>
 
-          {/* Options */}
           <div className="space-y-3 mb-4">
             {post.poll.options.map((option) => {
               const isSelected = selectedPollOption === option.id;
@@ -142,40 +130,40 @@ export function PostCard({ post }: PostCardProps) {
                 <button
                   key={option.id}
                   onClick={() => handlePollVote(option.id)}
-                  className={`w-full text-left rounded-lg p-3 transition-all duration-300 relative overflow-hidden ${isSelected
+                  className={`w-full text-left rounded-lg p-3 transition-all duration-300 relative overflow-hidden ${
+                    isSelected
                       ? isWinning
                         ? 'bg-green-900/40 border-2 border-green-600/50'
                         : option.percentage < 20
                           ? 'bg-gray-800/60 border-2 border-gray-600/50'
                           : 'bg-red-900/40 border-2 border-red-600/50'
                       : 'bg-gray-800/30 border border-gray-700/50 hover:border-gray-600'
-                    }`}
+                  }`}
                 >
-
-                  {/* Progress */}
                   <div
-                    className={`absolute inset-0 transition-all duration-500 ${isWinning
+                    className={`absolute inset-0 transition-all duration-500 ${
+                      isWinning
                         ? 'bg-green-600/20'
                         : option.percentage < 20
                           ? 'bg-gray-600/10'
                           : 'bg-red-600/20'
-                      }`}
+                    }`}
                     style={{ width: `${option.percentage}%` }}
                   />
 
-                  {/* Text */}
                   <div className="relative flex items-center justify-between">
                     <div className="flex items-center gap-2">
                       <option.icon />
                       <span className="text-white font-medium">{option.text}</span>
                     </div>
                     <span
-                      className={`font-bold text-lg ${isWinning
+                      className={`font-bold text-lg ${
+                        isWinning
                           ? 'text-green-400'
                           : option.percentage < 20
                             ? 'text-gray-400'
                             : 'text-red-400'
-                        }`}
+                      }`}
                     >
                       {option.percentage}%
                     </span>
@@ -185,7 +173,6 @@ export function PostCard({ post }: PostCardProps) {
             })}
           </div>
 
-          {/* Stats */}
           <div className="flex items-center gap-4 text-gray-400 text-sm">
             <div className="flex items-center gap-1">
               <FaUsers className="text-xs" />
@@ -200,39 +187,40 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       ) : (
         <>
-          {/* Regular Content */}
-          <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-700/30 rounded-xl p-4 mb-4">
+
+          {/* ========== CORRIGIDO AQUI ========== */}
+          <div className="bg-gradient-to-br from-orange-900/20 to-red-900/20 border border-orange-700/30 rounded-xl p-4 mb-4 overflow-hidden">
             <div className="flex items-start gap-3">
               <div className="text-orange-500 text-2xl mt-1 flex-shrink-0">
                 <FaExclamationTriangle />
               </div>
               <div className="flex-1 min-w-0">
-                <h3 className="text-white font-bold text-lg mb-2 break-words">
+                <h3 className="text-white font-bold text-lg mb-2 break-words line-clamp-2">
                   {post.title}
                 </h3>
-                <p className="text-gray-300 text-sm leading-relaxed break-words">
+                <p className="text-gray-300 text-sm leading-relaxed break-words line-clamp-3">
                   {post.content}
                 </p>
               </div>
             </div>
           </div>
+          {/* ===================================== */}
 
-          {/* Tags */}
           <div className="flex gap-2 mb-4">
             {tags.map((tag, index) => (
               <span
                 key={index}
-                className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${index === 0
+                className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${
+                  index === 0
                     ? 'bg-purple-600/20 text-purple-300'
                     : 'bg-blue-600/20 text-blue-300'
-                  }`}
+                }`}
               >
                 {tag}
               </span>
             ))}
           </div>
 
-          {/* CTA Button */}
           <button
             onClick={handleExplainImpact}
             disabled={isLoadingExplanation}
@@ -253,7 +241,6 @@ export function PostCard({ post }: PostCardProps) {
         </>
       )}
 
-      {/* Poll Tag */}
       {post.poll && (
         <div className="flex gap-2 mb-4">
           <span className="px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 bg-red-600/20 text-red-300">
@@ -262,12 +249,12 @@ export function PostCard({ post }: PostCardProps) {
         </div>
       )}
 
-      {/* Actions */}
       <div className="flex items-center justify-between text-gray-400 pt-3 border-t border-gray-800">
         <button
           onClick={handleLike}
-          className={`flex items-center gap-2 hover:text-red-400 transition-colors ${liked ? 'text-red-500' : ''
-            }`}
+          className={`flex items-center gap-2 hover:text-red-400 transition-colors ${
+            liked ? 'text-red-500' : ''
+          }`}
         >
           {liked ? <FaHeart className="text-lg" /> : <FaRegHeart className="text-lg" />}
           <span className="font-medium">{formatCount(likesCount)}</span>
@@ -302,7 +289,6 @@ export function PostCard({ post }: PostCardProps) {
         </button>
       </div>
 
-      {/* Modal de Explicação de Impacto */}
       {showExplanationModal && impactExplanation && (
         <ImpactExplanationModal
           explanation={impactExplanation}
@@ -310,7 +296,6 @@ export function PostCard({ post }: PostCardProps) {
         />
       )}
 
-      {/* Modal de Análise de Viés */}
       {showBiasModal && biasAnalysis && (
         <BiasAnalysisModal
           analysis={biasAnalysis}
