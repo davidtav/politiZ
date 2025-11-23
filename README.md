@@ -45,8 +45,7 @@ politiZ/
 ### Pré-requisitos
 - Node.js (v18+)
 - npm ou yarn
-- PostgreSQL (para o banco de dados)
-- Redis (opcional, para funcionalidades avançadas)
+- Docker e Docker Compose (para PostgreSQL e Redis)
 
 ### Passos
 
@@ -56,22 +55,86 @@ politiZ/
    cd politiZ
    ```
 
-2. **Configurar e rodar o Backend**
+2. **Iniciar os containers Docker (PostgreSQL e Redis)**
+   
+   Navegue até a pasta do backend e execute o Docker Compose:
    ```bash
    cd backend
-   npm install
-   # Configure o arquivo .env com as credenciais do banco de dados
-   npx prisma migrate dev
-   npm run start:dev
+   docker-compose up -d postgres redis
+   ```
+   
+   Este comando irá:
+   - Baixar as imagens do PostgreSQL 15 e Redis 7 (se necessário)
+   - Criar e iniciar os containers em background (`-d`)
+   - PostgreSQL estará disponível em `localhost:5432`
+   - Redis estará disponível em `localhost:6379`
+   
+   **Comandos úteis do Docker:**
+   ```bash
+   # Verificar status dos containers
+   docker-compose ps
+   
+   # Ver logs dos containers
+   docker-compose logs -f postgres redis
+   
+   # Parar os containers
+   docker-compose stop postgres redis
+   
+   # Parar e remover os containers
+   docker-compose down
+   
+   # Parar e remover containers + volumes (apaga dados do banco)
+   docker-compose down -v
    ```
 
-3. **Configurar e rodar o Frontend**
+3. **Configurar e rodar o Backend**
+   ```bash
+   # Ainda na pasta backend
+   npm install
+   
+   # Configure o arquivo .env com as credenciais (exemplo abaixo)
+   # DATABASE_URL="postgresql://postgres:postgres@localhost:5432/politiz"
+   # REDIS_URL="redis://localhost:6379"
+   # OPENAI_API_KEY="sua-chave-aqui"
+   
+   # Executar migrations do Prisma
+   npx prisma migrate dev
+   
+   # (Opcional) Popular o banco com dados de exemplo
+   npx prisma db seed
+   
+   # Iniciar o servidor de desenvolvimento
+   npm run dev
+   ```
+
+4. **Configurar e rodar o Frontend**
    ```bash
    cd ../frontend
    npm install
    npm run dev
    ```
 
-4. **Acessar a aplicação**
+5. **Acessar a aplicação**
    - Frontend: `http://localhost:3000`
    - Backend API: `http://localhost:3001`
+   - Documentação Swagger: `http://localhost:3001/docs`
+   - Prisma Studio: Execute `npx prisma studio` na pasta backend → `http://localhost:5555`
+
+## 🐳 Serviços Docker
+
+O projeto utiliza Docker Compose para gerenciar os seguintes serviços:
+
+### PostgreSQL
+- **Imagem**: `postgres:15-alpine`
+- **Porta**: `5432`
+- **Usuário**: `postgres`
+- **Senha**: `postgres`
+- **Database**: `politiz`
+- **Volume**: `pgdata` (persistência de dados)
+
+### Redis
+- **Imagem**: `redis:7-alpine`
+- **Porta**: `6379`
+- **Uso**: Cache e gerenciamento de filas para jobs assíncronos
+
+
