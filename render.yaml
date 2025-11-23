@@ -41,8 +41,28 @@ services:
     envVars:
       - key: NEXT_PUBLIC_API_URL
         value: https://politiz-backend.onrender.com
+      
       - key: NODE_ENV
         value: production
+
+      # Firebase Configuration
+      - key: NEXT_PUBLIC_FIREBASE_API_KEY
+        value: AIzaSyA43v3NU2Vz5ZzJjep0Wx6guhBrM8sUlZk
+      
+      - key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+        value: politz-login.firebaseapp.com
+      
+      - key: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+        value: politz-login
+      
+      - key: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+        value: politz-login.firebasestorage.app
+      
+      - key: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+        value: "948574011326"
+      
+      - key: NEXT_PUBLIC_FIREBASE_APP_ID
+        value: 1:948574011326:web:3bfbc94fdd74896d4283ef
 
 
 # ---------------------------
