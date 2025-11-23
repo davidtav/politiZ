@@ -18,13 +18,8 @@ services:
           name: politiz-postgres
           property: connectionString
 
-      - key: REDIS_URL
-        fromService:
-          name: politiz-redis
-          property: connectionString
-
-      - key: OPENAI_API_KEY
-        sync: false  # definirá no painel do Render
+      - key: GEMINI_API_KEY
+        sync: false  # Configurar manualmente no painel do Render
 
       - key: NODE_ENV
         value: production
@@ -52,23 +47,13 @@ services:
         value: production
 
 
-# ---------------------------------
-# REDIS - CORRETO
-# ---------------------------------
-redis:
-  - name: politiz-redis
-    plan: starter
-    region: oregon
-
-    # allow list obrigatória
-    ipAllowList: []
-
 # ---------------------------
 # DATABASE - PostgreSQL
 # ---------------------------
 databases:
   - name: politiz-postgres
-    plan: basic-256mb
+    plan: starter
     region: oregon
+
 
 
