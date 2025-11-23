@@ -15,6 +15,17 @@ export async function fetchFeed() {
   return res.data;
 }
 
+export interface ImpactExplanation {
+  simple: string;
+  storytelling: string;
+  futureProjection: string;
+}
+
+export async function explainNewsImpact(postId: string): Promise<ImpactExplanation> {
+  const response = await api.post('/ai/explain-impact', { postId });
+  return response.data;
+}
+
 // export async function fetchMockFeed() {
 //   return MOCK_FEED;
 // }

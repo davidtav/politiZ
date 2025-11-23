@@ -1,8 +1,10 @@
 "use client";
 import { useState } from 'react';
-import { FaHeart, FaRegHeart, FaComment, FaShareAlt, FaEye, FaLightbulb, FaRobot, FaBus, FaGraduationCap, FaExclamationTriangle, FaChartBar, FaUsers, FaClock } from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaComment, FaShareAlt, FaEye, FaLightbulb, FaRobot, FaBus, FaGraduationCap, FaExclamationTriangle, FaChartBar, FaUsers, FaClock, FaSpinner } from 'react-icons/fa';
 import { HiDotsVertical } from 'react-icons/hi';
 import { MotionFade } from './MotionFade';
+import { ImpactExplanationModal } from './ImpactExplanationModal';
+import { explainNewsImpact, type ImpactExplanation } from '../lib/api';
 import type { Post } from '../types';
 
 export interface PostCardProps {
@@ -15,6 +17,9 @@ export function PostCard({ post }: PostCardProps) {
   const [commentsCount] = useState(234);
   const [sharesCount] = useState(89);
   const [selectedPollOption, setSelectedPollOption] = useState<string | undefined>(post.poll?.userVote);
+  const [impactExplanation, setImpactExplanation] = useState<ImpactExplanation | null>(null);
+  const [isLoadingExplanation, setIsLoadingExplanation] = useState(false);
+  const [showExplanationModal, setShowExplanationModal] = useState(false);
 
   const handleLike = () => {
     setLiked(!liked);
@@ -25,6 +30,20 @@ export function PostCard({ post }: PostCardProps) {
     if (!post.poll) return;
     setSelectedPollOption(optionId);
     // Lógica para enviar o voto ao backend
+  };
+
+  const handleExplainImpact = async () => {
+    setIsLoadingExplanation(true);
+    try {
+      const explanation = await explainNewsImpact(post.id);
+      setImpactExplanation(explanation);
+      setShowExplanationModal(true);
+    } catch (error) {
+      console.error('Erro ao buscar explicação:', error);
+      alert('Erro ao buscar explicação. Tente novamente.');
+    } finally {
+      setIsLoadingExplanation(false);
+    }
   };
 
   const formatCount = (count: number) => {
@@ -101,21 +120,21 @@ export function PostCard({ post }: PostCardProps) {
                   key={option.id}
                   onClick={() => handlePollVote(option.id)}
                   className={`w-full text-left rounded-lg p-3 transition-all duration-300 relative overflow-hidden ${isSelected
-                      ? isWinning
-                        ? 'bg-green-900/40 border-2 border-green-600/50'
-                        : option.percentage < 20
-                          ? 'bg-gray-800/60 border-2 border-gray-600/50'
-                          : 'bg-red-900/40 border-2 border-red-600/50'
-                      : 'bg-gray-800/30 border border-gray-700/50 hover:border-gray-600'
+                    ? isWinning
+                      ? 'bg-green-900/40 border-2 border-green-600/50'
+                      : option.percentage < 20
+                        ? 'bg-gray-800/60 border-2 border-gray-600/50'
+                        : 'bg-red-900/40 border-2 border-red-600/50'
+                    : 'bg-gray-800/30 border border-gray-700/50 hover:border-gray-600'
                     }`}
                 >
                   {/* Progress Bar */}
                   <div
                     className={`absolute inset-0 transition-all duration-500 ${isWinning
-                        ? 'bg-green-600/20'
-                        : option.percentage < 20
-                          ? 'bg-gray-600/10'
-                          : 'bg-red-600/20'
+                      ? 'bg-green-600/20'
+                      : option.percentage < 20
+                        ? 'bg-gray-600/10'
+                        : 'bg-red-600/20'
                       }`}
                     style={{ width: `${option.percentage}%` }}
                   />
@@ -123,15 +142,15 @@ export function PostCard({ post }: PostCardProps) {
                   {/* Content */}
                   <div className="relative flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <option.icon/>
+                      <option.icon />
                       <span className="text-white font-medium">{option.text}</span>
                     </div>
                     <span
                       className={`font-bold text-lg ${isWinning
-                          ? 'text-green-400'
-                          : option.percentage < 20
-                            ? 'text-gray-400'
-                            : 'text-red-400'
+                        ? 'text-green-400'
+                        : option.percentage < 20
+                          ? 'text-gray-400'
+                          : 'text-red-400'
                         }`}
                     >
                       {option.percentage}%
@@ -180,8 +199,8 @@ export function PostCard({ post }: PostCardProps) {
               <span
                 key={index}
                 className={`px-3 py-1.5 rounded-lg text-sm font-medium flex items-center gap-2 ${index === 0
-                    ? 'bg-purple-600/20 text-purple-300'
-                    : 'bg-blue-600/20 text-blue-300'
+                  ? 'bg-purple-600/20 text-purple-300'
+                  : 'bg-blue-600/20 text-blue-300'
                   }`}
               >
                 {index === 0 ? <FaBus /> : <FaGraduationCap />} {tag}
@@ -190,9 +209,22 @@ export function PostCard({ post }: PostCardProps) {
           </div>
 
           {/* CTA Button */}
-          <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3 px-4 rounded-xl mb-4 flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-[1.02]">
-            <FaLightbulb className="text-lg" />
-            Como isso me afeta?
+          <button
+            onClick={handleExplainImpact}
+            disabled={isLoadingExplanation}
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3 px-4 rounded-xl mb-4 flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {isLoadingExplanation ? (
+              <>
+                <FaSpinner className="text-lg animate-spin" />
+                Analisando...
+              </>
+            ) : (
+              <>
+                <FaLightbulb className="text-lg" />
+                Como isso me afeta?
+              </>
+            )}
           </button>
         </>
       )}
@@ -232,6 +264,14 @@ export function PostCard({ post }: PostCardProps) {
           <span className="font-medium">Ver viés</span>
         </button>
       </div>
+
+      {/* Modal de Explicação de Impacto */}
+      {showExplanationModal && impactExplanation && (
+        <ImpactExplanationModal
+          explanation={impactExplanation}
+          onClose={() => setShowExplanationModal(false)}
+        />
+      )}
     </MotionFade>
   );
 }
