@@ -19,7 +19,11 @@ export class CreateNewsDto {
     image?: string;
 
     @IsString()
-    @IsOptional()
     @IsUrl()
-    url?: string;
+    @IsNotEmpty()
+    url!: string;
+
+    @IsString()
+    @IsOptional()
+    category?: string;
 }

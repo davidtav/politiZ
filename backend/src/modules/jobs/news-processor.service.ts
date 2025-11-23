@@ -1,4 +1,4 @@
-import { Injectable, Logger } from '@nestjs/common';
+import { Injectable, Logger, OnApplicationBootstrap } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { NewsService } from '../news/news.service';
 import { PostService } from '../post/post.service';
@@ -6,7 +6,7 @@ import { ChannelService } from '../channel/channel.service';
 import { AiService } from '../ai/ai.service';
 
 @Injectable()
-export class NewsProcessorService {
+export class NewsProcessorService implements OnApplicationBootstrap {
     private readonly logger = new Logger(NewsProcessorService.name);
 
     constructor(
@@ -16,6 +16,12 @@ export class NewsProcessorService {
         private aiService: AiService,
     ) { }
 
+    async onApplicationBootstrap() {
+        this.logger.log('🚀 Servidor iniciado! Disparando processamento de notícias inicial...');
+        // Executa sem await para não bloquear a inicialização do servidor
+        this.processNewsManually();
+    }
+
     // Executa a cada 30 minutos
     @Cron('0 */30 * * * *')
     async processNews() {
@@ -23,9 +29,9 @@ export class NewsProcessorService {
 
         try {
             // Garantir que o canal IA Cidadã existe
-            //const iaCidadaChannel = await this.channelService.findOrCreateIACidada();
-            //this.logger.log(`✅ Canal IA Cidadã encontrado: ${iaCidadaChannel.id}`);
-            
+            const iaCidadaChannel = await this.channelService.findOrCreateIACidada();
+            this.logger.log(`✅ Canal IA Cidadã encontrado: ${iaCidadaChannel.id}`);
+
             const totalChannels = await this.channelService.findAll();
             this.logger.log(`✅ Total de canais: ${totalChannels.length}`);
 
@@ -58,7 +64,7 @@ export class NewsProcessorService {
                         const summary = await this.aiService.summarizeNews({
                             title: news.title,
                             content: news.content,
-                            url: news.url || undefined,
+                            url: news.url as string,
                         });
 
                         this.logger.log(`✨ Resumo gerado: "${summary.substring(0, 100)}..."`);
@@ -68,6 +74,8 @@ export class NewsProcessorService {
                             channel.id,
                             summary,
                             news.id,
+                            news.title,
+                            news.image
                         );
 
                         // Marcar notícia como processada

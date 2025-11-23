@@ -150,14 +150,14 @@ export class PostService {
    * Cria um post a partir de uma notícia processada pela IA
    * Todos os posts criados por este método são atribuídos ao canal "IA Cidadã"
    */
-  async createFromNews(iaCidadaChannelId: string, content: string, newsId: string) {
+  async createFromNews(iaCidadaChannelId: string, content: string, newsId: string, title: string, image: string | null) {
     const post = await this.prisma.post.create({
       data: {
         channelId: iaCidadaChannelId,
         content,
         newsId,
-        title: null,
-        image: null,
+        title,
+        image,
       },
       include: {
         channel: true,

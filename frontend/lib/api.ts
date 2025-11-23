@@ -10,9 +10,9 @@ export const api = axios.create({
 
 export async function fetchFeed() {
 
-  return fetchMockFeed();
-  //const res = await api.get('/posts/feed');
-  //return res.data;
+  //return fetchMockFeed();
+  const res = await api.get('/posts/feed');
+  return res.data;
 }
 
 export async function fetchMockFeed() {

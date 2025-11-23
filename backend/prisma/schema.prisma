@@ -38,8 +38,9 @@ model News {
   channelId   String
   title       String
   content     String
+  category    String    @default("Outros assuntos")
   image       String?
-  url         String?
+  url         String
   processed   Boolean   @default(false)
   processedAt DateTime?
   createdAt   DateTime  @default(now())
