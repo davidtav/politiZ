@@ -1,0 +1,75 @@
+services:
+  # ---------------------------
+  # BACKEND - NestJS
+  # ---------------------------
+  - type: web
+    name: politiz-backend
+    env: node
+    region: oregon
+    plan: starter
+    rootDir: backend
+    buildCommand: |
+      npm install
+      npx prisma generate
+      npm run build
+    startCommand: node dist/main.js
+    autoDeploy: true
+
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: politiz-postgres
+          property: connectionString
+
+      - key: REDIS_URL
+        fromService:
+          name: politiz-redis
+          property: connectionString
+
+      - key: OPENAI_API_KEY
+        sync: false  # definirá no painel do Render
+
+      - key: NODE_ENV
+        value: production
+
+    # Rodar Prisma Migrate automaticamente no deploy
+    postDeployCommand: npx prisma migrate deploy
+
+  # ---------------------------
+  # FRONTEND - Next.js 14
+  # ---------------------------
+  - type: web
+    name: politiz-frontend
+    env: node
+    region: oregon
+    plan: starter
+    rootDir: frontend
+    buildCommand: |
+      npm install
+      npm run build
+    startCommand: npm start
+    autoDeploy: true
+
+    envVars:
+      - key: NEXT_PUBLIC_API_URL
+        value: https://politiz-backend.onrender.com
+      - key: NODE_ENV
+        value: production
+
+# ---------------------------
+# DATABASE - PostgreSQL
+# ---------------------------
+databases:
+  - name: politiz-postgres
+    plan: starter
+    region: oregon
+
+# ---------------------------
+# REDIS - Managed Redis
+# ---------------------------
+services:
+  - type: redis
+    name: politiz-redis
+    plan: starter
+    region: oregon
+    maxmemoryPolicy: allkeys-lru

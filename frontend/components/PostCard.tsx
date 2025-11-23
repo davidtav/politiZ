@@ -231,7 +231,7 @@ export function PostCard({ post }: PostCardProps) {
                     : 'bg-blue-600/20 text-blue-300'
                 }`}
               >
-                {index === 0 ? <FaBus /> : <FaGraduationCap />} {tag}
+                {tag}
               </span>
             ))}
           </div>
