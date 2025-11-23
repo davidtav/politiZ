@@ -8,10 +8,7 @@ services:
     region: oregon
     plan: starter
     rootDir: backend
-    buildCommand: |
-      npm install
-      npx prisma generate
-      npm run build
+    buildCommand: npm install && npx prisma generate && npm run build
     startCommand: node dist/main.js
     autoDeploy: true
 
@@ -61,7 +58,7 @@ services:
   # ---------------------------
   - type: redis
     name: politiz-redis
-    plan: starter
+    plan: start
     region: oregon
     maxmemoryPolicy: allkeys-lru
 
@@ -70,7 +67,7 @@ services:
 # ---------------------------
 databases:
   - name: politiz-postgres
-    plan: starter
+    plan: basic-256mb
     region: oregon
 
 
