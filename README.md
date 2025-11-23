@@ -139,11 +139,12 @@ O projeto utiliza Docker Compose para gerenciar os seguintes serviços:
 ---
 ## 👨‍💻 Equipe
 
-* **David Mclaurel Brito Tavares**  - Desenvolvedor
-* **Ligia Neide de Souza Freitas** - UI/UX Design
 * **Luciana Colturato Festi** - Gerente de projeto
-* **Michel Angelucci** - Desenvolvedor
 * **Pedro pongiluppi thomaz** - CGO
+* **Ligia Neide de Souza Freitas** - UI/UX Design
+* **David Mclaurel Brito Tavares**  - Desenvolvedor
+* **Michel Angelucci** - Desenvolvedor
+
 
 ---
 ## 📝 Licença
