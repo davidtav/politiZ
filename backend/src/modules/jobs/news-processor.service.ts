@@ -32,6 +32,9 @@ export class NewsProcessorService implements OnApplicationBootstrap {
             const iaCidadaChannel = await this.channelService.findOrCreateIACidada();
             this.logger.log(`✅ Canal IA Cidadã encontrado: ${iaCidadaChannel.id}`);
 
+            // Gerar um seed para notícias
+            await this.newsService.generateSeedNews(iaCidadaChannel.id);
+            
             const totalChannels = await this.channelService.findAll();
             this.logger.log(`✅ Total de canais: ${totalChannels.length}`);
 
@@ -75,7 +78,8 @@ export class NewsProcessorService implements OnApplicationBootstrap {
                             summary,
                             news.id,
                             news.title,
-                            news.image
+                            news.image,
+                            news.category
                         );
 
                         // Marcar notícia como processada

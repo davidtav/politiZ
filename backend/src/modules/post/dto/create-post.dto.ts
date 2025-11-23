@@ -21,6 +21,10 @@ export class CreatePostDto {
   @IsString()
   image?: string;
 
+  @IsOptional()
+  @IsString()
+  category?: string;
+
   // Poll é opcional, mas se fornecido deve ser válido
   @IsOptional()
   @ValidateNested()

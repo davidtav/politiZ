@@ -96,6 +96,22 @@ export class PostService {
     });
   }
 
+  async findOne(id: string) {
+    return this.prisma.post.findUnique({
+      where: { id },
+      include: {
+        channel: true,
+        likes: true,
+        poll: {
+          include: {
+            options: true,
+            votes: true,
+          },
+        },
+      },
+    });
+  }
+
   /**
    * Registra um voto em uma enquete
    */
@@ -150,7 +166,7 @@ export class PostService {
    * Cria um post a partir de uma notícia processada pela IA
    * Todos os posts criados por este método são atribuídos ao canal "IA Cidadã"
    */
-  async createFromNews(iaCidadaChannelId: string, content: string, newsId: string, title: string, image: string | null) {
+  async createFromNews(iaCidadaChannelId: string, content: string, newsId: string, title: string, image: string | null, category: string) {
     const post = await this.prisma.post.create({
       data: {
         channelId: iaCidadaChannelId,
@@ -158,6 +174,7 @@ export class PostService {
         newsId,
         title,
         image,
+        category,
       },
       include: {
         channel: true,

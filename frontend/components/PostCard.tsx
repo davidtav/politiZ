@@ -1,11 +1,11 @@
 "use client";
 import { useState } from 'react';
-import { 
-  FaHeart, FaRegHeart, FaComment, FaShareAlt, FaEye, FaLightbulb, FaRobot,
-  FaBus, FaGraduationCap, FaExclamationTriangle, FaChartBar, FaUsers, FaClock 
-} from 'react-icons/fa';
+import { FaHeart, FaRegHeart, FaComment, FaShareAlt, FaEye, FaLightbulb, FaRobot, FaBus, FaGraduationCap, FaExclamationTriangle, FaChartBar, FaUsers, FaClock, FaSpinner } from 'react-icons/fa';
 import { HiDotsVertical } from 'react-icons/hi';
 import { MotionFade } from './MotionFade';
+import { ImpactExplanationModal } from './ImpactExplanationModal';
+import { BiasAnalysisModal } from './BiasAnalysisModal';
+import { explainNewsImpact, analyzePoliticalBias, type ImpactExplanation, type BiasAnalysis } from '../lib/api';
 import type { Post } from '../types';
 
 export interface PostCardProps {
@@ -18,6 +18,12 @@ export function PostCard({ post }: PostCardProps) {
   const [commentsCount] = useState(234);
   const [sharesCount] = useState(89);
   const [selectedPollOption, setSelectedPollOption] = useState<string | undefined>(post.poll?.userVote);
+  const [impactExplanation, setImpactExplanation] = useState<ImpactExplanation | null>(null);
+  const [isLoadingExplanation, setIsLoadingExplanation] = useState(false);
+  const [showExplanationModal, setShowExplanationModal] = useState(false);
+  const [biasAnalysis, setBiasAnalysis] = useState<BiasAnalysis | null>(null);
+  const [isLoadingBias, setIsLoadingBias] = useState(false);
+  const [showBiasModal, setShowBiasModal] = useState(false);
 
   const handleLike = () => {
     setLiked(!liked);
@@ -28,6 +34,34 @@ export function PostCard({ post }: PostCardProps) {
     if (!post.poll) return;
     setSelectedPollOption(optionId);
     // enviar voto ao backend
+  };
+
+  const handleExplainImpact = async () => {
+    setIsLoadingExplanation(true);
+    try {
+      const explanation = await explainNewsImpact(post.id);
+      setImpactExplanation(explanation);
+      setShowExplanationModal(true);
+    } catch (error) {
+      console.error('Erro ao buscar explicação:', error);
+      alert('Erro ao buscar explicação. Tente novamente.');
+    } finally {
+      setIsLoadingExplanation(false);
+    }
+  };
+
+  const handleAnalyzeBias = async () => {
+    setIsLoadingBias(true);
+    try {
+      const analysis = await analyzePoliticalBias(post.id);
+      setBiasAnalysis(analysis);
+      setShowBiasModal(true);
+    } catch (error) {
+      console.error('Erro ao analisar viés:', error);
+      alert('Erro ao analisar viés. Tente novamente.');
+    } finally {
+      setIsLoadingBias(false);
+    }
   };
 
   const formatCount = (count: number) => {
@@ -134,7 +168,7 @@ export function PostCard({ post }: PostCardProps) {
                   {/* Text */}
                   <div className="relative flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <option.icon/>
+                      <option.icon />
                       <span className="text-white font-medium">{option.text}</span>
                     </div>
                     <span
@@ -202,10 +236,23 @@ export function PostCard({ post }: PostCardProps) {
             ))}
           </div>
 
-          {/* CTA */}
-          <button className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3 px-4 rounded-xl mb-4 flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-[1.02]">
-            <FaLightbulb className="text-lg" />
-            Como isso me afeta?
+          {/* CTA Button */}
+          <button
+            onClick={handleExplainImpact}
+            disabled={isLoadingExplanation}
+            className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-500 hover:to-purple-500 text-white font-semibold py-3 px-4 rounded-xl mb-4 flex items-center justify-center gap-2 transition-all duration-300 transform hover:scale-[1.02] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+          >
+            {isLoadingExplanation ? (
+              <>
+                <FaSpinner className="text-lg animate-spin" />
+                Analisando...
+              </>
+            ) : (
+              <>
+                <FaLightbulb className="text-lg" />
+                Como isso me afeta?
+              </>
+            )}
           </button>
         </>
       )}
@@ -241,12 +288,40 @@ export function PostCard({ post }: PostCardProps) {
           <span className="font-medium">{sharesCount}</span>
         </button>
 
-        <button className="flex items-center gap-2 hover:text-purple-400 transition-colors">
-          <FaEye className="text-lg" />
-          <span className="font-medium">Ver viés</span>
+        <button
+          onClick={handleAnalyzeBias}
+          disabled={isLoadingBias}
+          className="flex items-center gap-2 hover:text-purple-400 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {isLoadingBias ? (
+            <>
+              <FaSpinner className="text-lg animate-spin" />
+              <span className="font-medium">Analisando...</span>
+            </>
+          ) : (
+            <>
+              <FaEye className="text-lg" />
+              <span className="font-medium">Ver viés</span>
+            </>
+          )}
         </button>
       </div>
 
+      {/* Modal de Explicação de Impacto */}
+      {showExplanationModal && impactExplanation && (
+        <ImpactExplanationModal
+          explanation={impactExplanation}
+          onClose={() => setShowExplanationModal(false)}
+        />
+      )}
+
+      {/* Modal de Análise de Viés */}
+      {showBiasModal && biasAnalysis && (
+        <BiasAnalysisModal
+          analysis={biasAnalysis}
+          onClose={() => setShowBiasModal(false)}
+        />
+      )}
     </MotionFade>
   );
 }
