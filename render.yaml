@@ -51,14 +51,17 @@ services:
       - key: NODE_ENV
         value: production
 
-  # ---------------------------
-  # REDIS - Managed Redis
-  # ---------------------------
-  - type: redis
-    name: politiz-redis
-    plan: start
+
+# ---------------------------------
+# REDIS - CORRETO
+# ---------------------------------
+redis:
+  - name: politiz-redis
+    plan: starter
     region: oregon
-    maxmemoryPolicy: allkeys-lru
+
+    # allow list obrigatória
+    ipAllowList: []
 
 # ---------------------------
 # DATABASE - PostgreSQL
