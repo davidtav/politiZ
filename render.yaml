@@ -56,6 +56,15 @@ services:
       - key: NODE_ENV
         value: production
 
+  # ---------------------------
+  # REDIS - Managed Redis
+  # ---------------------------
+  - type: redis
+    name: politiz-redis
+    plan: starter
+    region: oregon
+    maxmemoryPolicy: allkeys-lru
+
 # ---------------------------
 # DATABASE - PostgreSQL
 # ---------------------------
@@ -64,12 +73,4 @@ databases:
     plan: starter
     region: oregon
 
-# ---------------------------
-# REDIS - Managed Redis
-# ---------------------------
-services:
-  - type: redis
-    name: politiz-redis
-    plan: starter
-    region: oregon
-    maxmemoryPolicy: allkeys-lru
+
