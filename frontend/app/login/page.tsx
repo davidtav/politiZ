@@ -3,26 +3,39 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { Tab } from '@headlessui/react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, Auth } from 'firebase/auth';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 
 // --- CONFIG FIREBASE ---
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
-};
+// Initialize Firebase lazily to avoid issues during SSR/build
+let auth: Auth | null = null;
+let provider: GoogleAuthProvider | null = null;
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const provider = new GoogleAuthProvider();
+function initializeFirebase() {
+  if (auth && provider) {
+    return { auth, provider };
+  }
+  
+  const firebaseConfig = {
+    apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
+    authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN!,
+    projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID!,
+    storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET!,
+    messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID!,
+    appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID!,
+  };
 
-const API_BASE_URL = 'http://localhost:3001';
+  const app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  provider = new GoogleAuthProvider();
+  
+  return { auth, provider };
+}
+
+// Use environment variable for API URL, with fallback to localhost
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001';
 
 export default function LoginTabsPage() {
   const router = useRouter();
@@ -53,6 +66,7 @@ export default function LoginTabsPage() {
     }
 
     try {
+      const { auth, provider } = initializeFirebase();
       const result = await signInWithPopup(auth, provider);
       const user = result.user;
 
