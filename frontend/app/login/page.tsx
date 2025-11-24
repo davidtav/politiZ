@@ -3,18 +3,20 @@
 import { useState, ChangeEvent, FormEvent } from 'react';
 import { Tab } from '@headlessui/react';
 import { initializeApp } from 'firebase/app';
-import { getAuth, GoogleAuthProvider, signInWithPopup } from 'firebase/auth';
+import { getAuth, GoogleAuthProvider, signInWithPopup, Auth } from 'firebase/auth';
 import axios from 'axios';
 import { useRouter } from 'next/navigation';
 import clsx from 'clsx';
 
 // --- CONFIG FIREBASE ---
 // Initialize Firebase lazily to avoid issues during SSR/build
-let auth: any = null;
+let auth: Auth | null = null;
 let provider: GoogleAuthProvider | null = null;
 
 function initializeFirebase() {
-  if (auth) return { auth, provider: provider! };
+  if (auth && provider) {
+    return { auth, provider };
+  }
   
   const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY!,
