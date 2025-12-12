@@ -47,7 +47,7 @@ services:
 
       # Firebase Configuration
       - key: NEXT_PUBLIC_FIREBASE_API_KEY
-        value: AIzaSyA43v3NU2Vz5ZzJjep0Wx6guhBrM8sUlZk
+        value: 123456654321123456654321123456654321234
       
       - key: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
         value: politz-login.firebaseapp.com
@@ -62,7 +62,7 @@ services:
         value: "948574011326"
       
       - key: NEXT_PUBLIC_FIREBASE_APP_ID
-        value: 1:948574011326:web:3bfbc94fdd74896d4283ef
+        value: 1:234567890123:web:1234567891234567891234
 
 
 # ---------------------------
